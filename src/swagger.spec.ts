@@ -655,5 +655,12 @@ describe('swagger2', () => {
         }]);
       });
     });
+
+    describe('petstore-simple-with-count.yaml', () => {
+      it('/pets/count is resolved correctly', () => {
+        const compiledPath = compile('test/yaml/petstore-simple-with-count.yaml')('/api/pets/count');
+        assert.deepStrictEqual(swagger.validateRequest(compiledPath, 'get'), []);
+      });
+    });
   });
 });

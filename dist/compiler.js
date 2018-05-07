@@ -155,19 +155,22 @@ function compile(document) {
             });
         });
     });
-    const basePath = swagger.basePath || '';
+    const basePath = (swagger.basePath || '').replace(/\/*$/, '');
     const matcher = Object.keys(swagger.paths)
         .map((name) => {
         return {
             name,
             path: swagger.paths[name],
-            regex: new RegExp('^' + basePath.replace(/\/*$/, '') + name.replace(/\{[^}]*}/g, '[^/]+') + '/?$'),
+            regex: new RegExp(`^${basePath}${name.replace(/\{[^}]*}/g, '[^/]+')}/?$`),
             expected: (name.match(/[^\/]+/g) || []).map((s) => s.toString())
         };
     });
     return (path) => {
         // get a list of matching paths, there should be only one
-        const matches = matcher.filter((match) => !!path.match(match.regex));
+        let matches = matcher.filter((match) => !!path.match(match.regex));
+        if (matches.length > 1) {
+            matches = matches.filter(match => path === `${basePath}${match.name}`);
+        }
         if (matches.length !== 1) {
             return;
         }
